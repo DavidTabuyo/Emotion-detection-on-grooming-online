@@ -63,7 +63,7 @@ Antes de ejecutar el proyecto, asegúrate de cumplir los siguientes requisitos:
 
 ⚠️ **Importante**: El dataset PAN12 no se incluye en este repositorio por motivos legales. Es necesario solicitarlo y aceptar sus condiciones de uso para obtenerlo.
 
-...
+---
 
 ### 🇬🇧 English
 
@@ -98,3 +98,144 @@ Before running the project, make sure you meet the following requirements:
 
 ⚠️ **Important**: The PAN12 dataset is not included in this repository due to legal and licensing restrictions. You must request it and accept the terms of use in order to obtain it.
 
+## 🧠 Procesamiento inicial del dataset PAN12 / Initial Processing of the PAN12 Dataset
+
+### 🇪🇸 Español
+
+Dentro de la carpeta `model_pan12`, una vez colocado el dataset PAN12 como se indicó en los requisitos previos, se encuentra el primer script que permite convertir el corpus original en XML en un formato CSV estructurado y utilizable para los siguientes pasos del proyecto.
+
+Este script realiza lo siguiente:
+
+- Carga los identificadores de groomers desde el fichero `.txt`.
+- Parsea el archivo XML que contiene todas las conversaciones.
+- Extrae todos los mensajes de cada conversación y los concatena en un solo bloque de texto.
+- Etiqueta la conversación como `1` si participa algún groomer, o como `0` en caso contrario.
+- Exporta el resultado a un fichero `conversations_dataset.csv` con tres columnas:
+  - `conversation_id`
+  - `conversation`
+  - `grooming`
+- Además, genera un archivo `conversations_stats.txt` con estadísticas generales del conjunto.
+
+Este paso es fundamental para preparar el dataset con las etiquetas necesarias de cara a la anotación emocional posterior.
+
+---
+
+### 🇬🇧 English
+
+Inside the `model_pan12` folder, once the PAN12 dataset has been placed as described earlier, you will find the first processing script. Its purpose is to convert the original XML corpus into a structured CSV file, ready for emotional annotation and further modeling.
+
+The script performs the following tasks:
+
+- Loads groomer identifiers from the `.txt` file.
+- Parses the XML file containing all chat conversations.
+- Extracts and concatenates all messages from each conversation.
+- Labels the conversation as `1` if it involves any known groomer, or `0` otherwise.
+- Exports the results into a `conversations_dataset.csv` file with three columns:
+  - `conversation_id`
+  - `conversation`
+  - `grooming`
+- Additionally, it generates a `conversations_stats.txt` file with basic dataset statistics.
+
+This preprocessing step is essential for creating a clean and labeled dataset to be used in the next stage: emotional feature extraction.
+
+---
+
+## 🎯 Generación del dataset emocional / Emotion Vector Generation
+
+### 🇪🇸 Español
+
+Una vez generado el archivo `conversations_dataset.csv` a partir del corpus PAN12, el siguiente paso consiste en transformar cada conversación en un vector numérico que represente la intensidad de cada una de las 28 emociones del conjunto **GoEmotions**.
+
+Para ello, se utiliza un modelo preentrenado de clasificación emocional (por ejemplo: `sangkm/go-emotions-fine-tuned-distilroberta`), que analiza el texto completo de cada conversación y asigna una probabilidad a cada emoción.
+
+#### 📁 Prerrequisitos
+
+Antes de ejecutar este paso, es necesario:
+
+- Copiar el archivo `conversations_dataset.csv` generado previamente en la carpeta `grooming_dataset_generation/`.
+- Asegurarse de tener conexión a internet para que Hugging Face pueda descargar el modelo seleccionado, si no está en caché.
+- Verificar que se dispone de suficiente memoria (se recomienda uso de GPU para acelerar el proceso).
+
+#### 📥 Estado del dataset antes del script
+
+El archivo `conversations_dataset.csv` contiene:
+
+- `conversation_id`: identificador de la conversación.
+- `conversation`: texto completo concatenado de los mensajes.
+- `grooming`: etiqueta binaria (`1` si hay grooming, `0` si no).
+
+Ejemplo:
+
+| conversation_id | conversation                               | grooming |
+|-----------------|--------------------------------------------|----------|
+| 23              | Hi, how are you? I'm fine, you? ...        | 1        |
+| 24              | Hello! Let's play a game...                | 0        |
+
+#### 📤 Resultado del script
+
+El script genera un nuevo archivo llamado `pan12_emotions.csv`, que añade para cada conversación un vector con **28 columnas correspondientes a las emociones** del dataset GoEmotions, más las columnas `conversation_id` y `grooming`.
+
+Ejemplo:
+
+| conversation_id | joy  | anger | fear | ... | remorse | grooming |
+|-----------------|------|-------|------|-----|---------|----------|
+| 23              | 0.76 | 0.03  | 0.05 | ... | 0.01    | 1        |
+| 24              | 0.10 | 0.00  | 0.20 | ... | 0.00    | 0        |
+
+Este archivo resultante se puede guardar en subcarpetas distintas según el modelo utilizado. Por ejemplo:
+
+- `grooming_dataset_generation/model_1/pan12_emotions.csv`
+- `grooming_dataset_generation/model_2/pan12_emotions.csv`
+
+Esto permite comparar el rendimiento de distintos modelos de clasificación emocional en pasos posteriores del proyecto.
+
+---
+
+### 🇬🇧 English
+
+After generating `conversations_dataset.csv` from the PAN12 corpus, the next step is to transform each conversation into a numerical vector that represents the intensity of each of the 28 emotions from the **GoEmotions** dataset.
+
+This is done using a pretrained emotion classification model (e.g., `sangkm/go-emotions-fine-tuned-distilroberta`), which processes the full conversation text and returns one probability score per emotion.
+
+#### 📁 Prerequisites
+
+Before running this step, make sure to:
+
+- Place the previously generated `conversations_dataset.csv` into the `grooming_dataset_generation/` folder.
+- Ensure internet access so the Hugging Face model can be downloaded (if not already cached).
+- Have sufficient memory available (GPU is recommended for faster inference).
+
+#### 📥 Dataset before the script
+
+The input CSV contains:
+
+- `conversation_id`: conversation identifier.
+- `conversation`: full text of all messages.
+- `grooming`: binary label (`1` for grooming, `0` otherwise).
+
+Example:
+
+| conversation_id | conversation                               | grooming |
+|-----------------|--------------------------------------------|----------|
+| 23              | Hi, how are you? I'm fine, you? ...        | 1        |
+| 24              | Hello! Let's play a game...                | 0        |
+
+#### 📤 Output of the script
+
+The script outputs a new file named `pan12_emotions.csv`, where each row now includes 28 emotion values (between 0 and 1), in addition to `conversation_id` and `grooming`.
+
+Example:
+
+| conversation_id | joy  | anger | fear | ... | remorse | grooming |
+|-----------------|------|-------|------|-----|---------|----------|
+| 23              | 0.76 | 0.03  | 0.05 | ... | 0.01    | 1        |
+| 24              | 0.10 | 0.00  | 0.20 | ... | 0.00    | 0        |
+
+The output file can be saved into different subdirectories depending on the model used. For example:
+
+- `grooming_dataset_generation/model_1/pan12_emotions.csv`
+- `grooming_dataset_generation/model_2/pan12_emotions.csv`
+
+This structure allows for later comparison between different emotion models in grooming detection tasks.
+
+---
