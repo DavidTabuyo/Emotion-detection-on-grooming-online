@@ -344,3 +344,70 @@ This qualitative analysis offers insights into emotional differences between cla
 
 ---
  
+ ## 🧪 Extra: Evaluación de modelos usando solo las emociones más influyentes
+
+### 🇪🇸 Español
+
+Este script permite evaluar la calidad de los modelos preentrenados de clasificación emocional cuando se restringe su salida únicamente a las **10 emociones más relevantes** determinadas previamente mediante SHAP.
+
+El objetivo es comprobar si un subconjunto reducido de emociones es suficiente para mantener un buen rendimiento, lo que puede ser útil en contextos donde se busca mayor eficiencia o interpretabilidad.
+
+#### ⚙️ ¿Qué hace el script?
+
+- Usa el dataset original **GoEmotions** a través de `datasets` de Hugging Face.
+- Tokeniza y prepara el conjunto de prueba (`test split`).
+- Aplica el modelo preentrenado elegido (`sangkm/go-emotions-fine-tuned-distilroberta`) sobre los textos.
+- Filtra solo las predicciones y etiquetas correspondientes a las **10 emociones más influyentes** según el análisis con SHAP.
+- Evalúa el rendimiento con varias métricas:
+  - F1-score micro
+  - F1-score por muestra (`samples`)
+  - Hamming loss
+  - Exactitud por muestra
+
+Este enfoque proporciona una validación clara de que el modelo sigue funcionando correctamente incluso cuando se reduce la dimensionalidad emocional, lo que puede ser especialmente útil para sistemas explicables o integrados en tiempo real.
+
+---
+
+### 🇬🇧 English
+
+This script evaluates the performance of a pretrained emotion classification model when restricting its output to only the **top 10 most influential emotions** identified earlier using SHAP.
+
+The goal is to check whether a reduced emotional feature space still retains predictive power, which is useful for improving model efficiency and interpretability.
+
+#### ⚙️ What does the script do?
+
+- Loads the original **GoEmotions** dataset via Hugging Face `datasets`.
+- Preprocesses and tokenizes the test split.
+- Applies the selected pretrained model (`sangkm/go-emotions-fine-tuned-distilroberta`) on the test data.
+- Filters predictions and ground truth to keep only the **10 key emotions** selected with SHAP.
+- Evaluates the model using several metrics:
+  - F1-score (micro average)
+  - F1-score per sample
+  - Hamming loss
+  - Per-sample accuracy
+
+This evaluation confirms that the model can perform well even with a limited set of emotional features, supporting efficient and interpretable applications in grooming detection.
+
+---
+
+## 🔗 Resultados del proyecto / Project Results
+
+### 🇪🇸 Español
+
+Los resultados completos de este Trabajo de Fin de Grado, incluyendo gráficos, análisis de métricas, visualizaciones con SHAP y conclusiones, pueden consultarse en una publicación disponible en mi perfil de LinkedIn:
+
+👉 [Ver publicación en LinkedIn](https://www.linkedin.com/in/tu-nombre-aquí) *(enlace pendiente de actualizar)*
+
+No dudes en contactarme por esa vía si tienes preguntas, sugerencias o interés en colaborar.
+
+---
+
+### 🇬🇧 English
+
+The complete results of this Bachelor's Thesis project — including charts, evaluation metrics, SHAP visualizations and conclusions — are available in a LinkedIn post on my profile:
+
+👉 [See LinkedIn post](https://www.linkedin.com/in/your-name-here) *(link to be updated)*
+
+Feel free to reach out via LinkedIn for questions, suggestions, or potential collaborations.
+
+---
